@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt — AgroExample</title>
+  <link rel="icon" type="image/x-icon" href="obrazky/favicon.png">
+  <style>
+    /* Reset a globálne premenné */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #1e3f20;
+      --primary-light: #2c5e3b;
+      --accent: #d4af37;
+      --olive-brand: #B9C18C; /* Tvoja olivová farba */
+      --bg: #8F8472;
+      --surface: #769771;
+      --bg-light: #A5C392;
+      --surface-light: #F7F6F2; /* Teplý prírodný podklad */
+      --text: #2b2b2a;
+      --text-muted: #171510;
+      --text-white: #f0ede6;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      line-height: 1.6; 
+      color: var(--text); 
+      background-color: var(--surface-light); 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Animácie pre scroll */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* Hlavička a navigácia */
+    header { background-color: #E0EACD; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eae8e2; }
+    .nav-container { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+    .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+    .logo span { color: var(--accent); }
+    .nav-menu { display: flex; gap: 35px; }
+    .nav-menu a { font-weight: 600; font-size: 0.95rem; color: var(--text-muted); transition: color 0.3s; position: relative; padding: 5px 0; }
+    .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+    .nav-menu a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s; }
+    .nav-menu a:hover::after, .nav-menu a.active::after { width: 100%; }
+
+    /* Mobilné menu */
+    .mobile-nav-toggle { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 6px; z-index: 1000; padding: 5px; }    
+    .mobile-nav-toggle span { display: block; width: 25px; height: 3px; background-color: var(--primary); border-radius: 2px; transition: all 0.3s ease; }
+    .mobile-nav-toggle.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+    .mobile-nav-toggle.active span:nth-child(2) { opacity: 0; }
+    .mobile-nav-toggle.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+    /* Sub-Hero / Banner */
+    .page-banner { background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('obrazky/banner-contact.webp') center/cover; padding: 120px 0 80px; color: #fff; }
+    .page-banner h1 { font-size: 3.2rem; margin-bottom: 15px; font-weight: 700; letter-spacing: -0.5px; }
+    .page-banner p { font-size: 1.2rem; color: var(--text-white); font-weight: 300; max-width: 600px; }
+
+    /* Hlavná sekcia kontaktov */
+    .section { padding: 90px 0; }
+    .grid-contact { display: grid; grid-template-columns: 1fr 1.1fr; gap: 60px; }
+    
+    /* Info Detaily */
+    .contact-info h2 { color: var(--primary); margin-bottom: 35px; font-size: 2.4rem; font-weight: 700; }
+    .info-block { margin-bottom: 30px; }
+    .info-block h4 { font-size: 1.15rem; color: var(--primary); margin-bottom: 8px; font-weight: 700; border-left: 4px solid var(--olive-brand); padding-left: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-block p { color: #3d3d3b; font-size: 1.05rem; line-height: 1.7; }
+
+    /* Karta budovy firmy */
+    .building-card { background: #000000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-top: 35px; border: 1px solid rgba(0,0,0,0.05); }
+    .building-img { height: 220px; background: url('obrazky/building-img.webp') center/cover; }
+    .building-detail { padding: 25px; background: #fff; }
+    .building-detail h5 { color: #000000; font-size: 1.1rem; margin-bottom: 8px; font-weight: 700; }
+    .building-detail p { font-size: 0.95rem; color: #000000; line-height: 1.6; }
+
+    /* Formulár s jemnými tieňmi */
+    .contact-form { background: #fff; padding: 45px; border-radius: 12px; box-shadow: 0 15px 35px rgba(27, 43, 29, 0.05); border: 1px solid rgba(0,0,0,0.04); }
+    .contact-form h3 { margin-bottom: 30px; color: var(--primary); font-size: 1.6rem; font-weight: 700; position: relative; padding-bottom: 10px; }
+    .contact-form h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 45px; height: 3px; background: var(--olive-brand); border-radius: 2px; }
+    .form-group { margin-bottom: 22px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #444; }
+    .form-control { width: 100%; padding: 13px 16px; border: 1px solid #000000; border-radius: 6px; font-size: 1rem; transition: all 0.25s ease; background: #fdfdfb; color: var(--text); }
+    .form-control:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(30, 63, 32, 0.08); outline: none; }
+    
+    .btn-submit { background: var(--primary); color: #fff; border: none; padding: 15px 30px; font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; transition: background 0.2s, transform 0.2s; }
+    .btn-submit:hover { background: var(--primary-light); transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(1px); }
+
+    /* SEKCIA PRE ZAMESTNANCOV */
+    .staff-outer-section { background-color: #F0EFEA; padding: 90px 0; border-top: 1px solid #e3e1da; border-bottom: 1px solid #e3e1da; }
+    .staff-outer-section h3 { color: var(--primary); font-size: 2rem; margin-bottom: 45px; font-weight: 700; text-align: center; }
+    .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+    
+    /* Karty tímu */
+    .staff-card { display: flex; align-items: center; gap: 22px; background: #D9DDD4; padding: 25px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.02); border: 2px solid transparent; transition: all 0.3s ease; }
+    .staff-card:hover { transform: translateY(-5px); border-color: var(--olive-brand); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+    .staff-avatar { width: 80px; height: 80px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; border: 3px solid var(--olive-brand); }
+    .staff-meta p { font-size: 0.85rem; color: var(--primary-light); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.8px; }
+    .staff-meta h4 { font-size: 1.2rem; color: var(--primary); font-weight: 700; margin-bottom: 4px; }
+    .staff-meta span { font-size: 1rem; color: #444; display: block; font-weight: 600; }
+
+    /* Fake mapa */
+    .map-wrapper { padding: 90px 0; background-color: var(--surface-light); }
+    .map-wrapper h3 { color: var(--primary); font-size: 1.8rem; margin-bottom: 30px; font-weight: 700; text-align: center; }
+    
+    .fake-map { 
+      width: 100%; 
+      height: 450px; 
+      background: linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0.05)), url('obrazky/fake-map.webp') center/cover; 
+      border-radius: 12px; 
+      position: relative; 
+      box-shadow: 0 12px 35px rgba(0,0,0,0.07);
+      overflow: hidden;
+      border: 1px solid #4C8100;
+    }
+    
+    .map-widget {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      background: #fff;
+      padding: 20px 24px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      font-size: 0.88rem;
+      max-width: 300px;
+      z-index: 5;
+    }
+    .map-widget h4 { font-size: 1.05rem; font-weight: 700; color: #000; margin-bottom: 3px; }
+    .map-widget .rating { color: #ffb703; font-weight: bold; margin-bottom: 6px; }
+    .map-widget p { color: #555; margin-bottom: 12px; line-height: 1.4; }
+    .map-links { display: flex; gap: 15px; border-top: 1px solid #f0f0ed; padding-top: 12px; }
+    .map-links a { color: #1a73e8; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .map-links a:hover { text-decoration: underline; }
+
+    .map-pin { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -100%); text-align: center; z-index: 4; }
+    .pin-icon { font-size: 2.5rem; color: #ea4335; text-shadow: 0 4px 8px rgba(0,0,0,0.3); animation: bounce 2s infinite ease-in-out; }
+    .pin-label { background: #000; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; margin-top: -5px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }   
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Pätička */
+    footer { background-color: #141a16; color: #a3b096; padding: 80px 0 20px; font-size: 0.9rem; border-top: 3px solid var(--accent); text-align: left; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-bottom: 60px; }
+    .footer-col h4 { color: #fff; margin-bottom: 25px; font-size: 1.1rem; position: relative; padding-bottom: 10px; }
+    .footer-col h4::after { content: ''; position: absolute; bottom: 0; left: 0; width: 35px; height: 2px; background: var(--accent); }
+    .footer-col p { margin-bottom: 15px; }
+    .footer-col ul li { margin-bottom: 12px; }
+    .footer-col ul li a:hover { color: #fff; text-decoration: underline; }
+    .footer-bottom { text-align: center; border-top: 1px solid #232d26; padding-top: 25px; color: #5c6954; }
+
+    /* Responzivita - mobilné zobrazenie */
+    @media (max-width: 768px) {
+      .mobile-nav-toggle { display: flex; }
+
+      /* Nastavenie farby pre ikonu menu */
+      .mobile-nav-toggle span { background-color: var(--primary); }
+
+      .nav-menu {
+        display: flex; 
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: #E0EACD;
+        flex-direction: column;
+        gap: 0 !important;
+        width: 100%;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-in-out;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        border-bottom: 1px solid #eae8e2;
+      }
+
+      .nav-menu.active { max-height: 350px; }
+      .nav-menu a { width: 100%; text-align: center; padding: 15px 0; border-top: 1px solid rgba(0, 0, 0, 0.05); }
+      .nav-menu a::after { display: none; }
+
+      .page-banner h1 { font-size: 2.4rem; }
+      .grid-contact { grid-template-columns: 1fr; gap: 45px; }
+      .contact-form { padding: 30px 20px; }
+      
+      /* Úprava kontajnera mapy na mobile */
+      .fake-map { 
+        height: 400px; 
+        overflow: hidden; 
+        display: flex;
+        align-items: flex-end; 
+        padding: 15px;
+      }
+
+      /* Zapustenie widgetu do mapy namiesto pretekania von */
+      .map-widget { 
+        position: relative; 
+        top: 0; 
+        left: 0;
+        margin-top: 0; 
+        max-width: 100%; 
+        width: 100%;
+        padding: 15px;
+        border-radius: 8px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0,0,0,0.1);
+      }
+
+      /* Posunutie pinu o niečo vyššie, aby nezmizol pod spodným widgetom */
+      .map-pin {
+        top: 35%;
+      }
+
+      .section, .staff-outer-section, .map-wrapper { padding: 60px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav-container">
+      <a href="index.html" class="logo">Agro<span>Example</span></a>
+      
+      <button class="mobile-nav-toggle" aria-label="Otvoriť menu">
+          <span></span>
+          <span></span>
+          <span></span>
+      </button>
+
+      <nav class="nav-menu">
+        <a href="index.html">Úvod</a>
+        <a href="o-nas.html">O nás</a>
+        <a href="sluzby.html">Naša činnosť</a>
+        <a href="predaj.html">Predaj z dvora</a>
+        <a href="kontakt.html" class="active">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-banner">
+    <div class="container">
+      <h1>Sme tu pre vás</h1>
+      <p>Máte otázky, plánujete nákup alebo s nami chcete nadviazať spoluprácu? Ozvite sa nám.</p>
+    </div>
+  </section>
+
+  <section class="section reveal">
+    <div class="container">
+      <div class="grid-contact">
+        
+        <div class="contact-info reveal">
+          <h2>Kontaktné údaje</h2>
+          
+          <div class="info-block">
+            <h4>🏢 Sídlo Spoločnosti</h4>
+            <p><strong>AgroExample s.r.o.</strong></p>
+            <p>Webová ulica 404, 404 00 Webmesto</p>
+            <p>IČO: 404 404 04 | DIČ: 2002002000</p>
+          </div>
+          
+          <div class="info-block">
+            <h4>📞 Zákaznícka podpora</h4>
+            <p>Tel: +421 404 404 404 </p>
+            <p>Email: info@agroexample.sk</p>
+          </div>
+          
+          <div class="building-card">
+            <div class="building-img"></div>
+            <div class="building-detail">
+              <h5>📍 Hlavný areál & Predajňa z dvora</h5>
+              <p>Webová ulica 404, 404 00 Webmesto (smer Nový Web, cca 2km za obcou)</p>
+              <p style="margin-top: 8px;"><strong>🕒 Otváracie hodiny:</strong></p>
+              <p>Po - Pia: 8:00 - 17:00 | So: 8:00 - 12:00</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form reveal">
+          <h3>✉️ Napíšte nám správu</h3>
+          <form action="#">
+            <div class="form-group">
+              <label for="name">Meno a priezvisko</label>
+              <input type="text" id="name" class="form-control" placeholder="Andrej Novák" required>
+            </div>
+            <div class="form-group">
+              <label for="email">E-mailová adresa</label>
+              <input type="email" id="email" class="form-control" placeholder="andrej@email.com" required>
+            </div>
+            <div class="form-group">
+              <label for="message">Vaša správa alebo dopyt</label>
+              <textarea id="message" class="form-control" rows="5" placeholder="Napíšte nám, s čím vám môžeme pomôcť..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Odoslať správu</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="staff-outer-section reveal">
+    <div class="container">
+      <h3>Komu môžete priamo zavolať</h3>
+      <div class="staff-grid">
+        
+        <div class="staff-card reveal">
+          <div class="staff-avatar" style="background-image: url('obrazky/team-img1.webp');"></div>
+          <div class="staff-meta">
+            <p>Agronómka — Rastlinná Výroba</p>
+            <h4>Ing. Elena Radová</h4>
+            <span>📞 +421 400 400 400</span>
+          </div>
+        </div>
+
+        <div class="staff-card reveal">
+          <div class="staff-avatar" style="background-image: url('obrazky/team-img2.webp');"></div>
+          <div class="staff-meta">
+            <p>Vedúci — Logistika & Výroba</p>
+            <h4>Martin Rada</h4>
+            <span>📞 +421 403 403 403</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="map-wrapper reveal">
+    <div class="container">
+      <h3>Kde nás nájdete</h3>
+      
+      <div class="fake-map">
+        <div class="map-widget">
+          <h4>AgroExample s.r.o.</h4>
+          <div class="rating">4.9 ★★★★★ <span style="color:#666; font-weight:normal;">(142)</span></div>
+          <p>Webová ulica 404, 404 00 Webmesto<br>Farma a predaj z dvora</p>
+          <div class="map-links">
+            <a href="#" onclick="alert('Navigácia sa spúšťa...'); return false;">↗ Trasa</a>
+            <a href="#" onclick="alert('Otváram mapu...'); return false;">Zväčšiť mapu</a>
+          </div>
+        </div>
+
+        <div class="map-pin">
+          <div class="pin-icon">📍</div>
+          <div class="pin-label">AgroExample Farm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h4>AgroExample</h4>
+        <p>Udržateľné poľnohospodárstvo a výroba prémiových lokálnych produktov s rešpektom k prírode.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Užitočné odkazy</h4>
+        <ul>
+          <li><a href="o-nas.html">O nás a našej histórii</a></li>
+          <li><a href="sluzby.html">Naše výrobné postupy</a></li>
+          <li><a href="predaj.html">Ponuka produktov z dvora</a></li>
+          <li><a href="kontakt.html">Mapa a kontaktné údaje</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <p>Webová ulica 404, 404 00 Webmesto</p>
+        <p>Email: info@agroexample.sk</p>
+        <p>Tel: +421 404 404 404</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>
+        &copy; 2026 AgroExample. Všetky práva vyhradené. | 
+        Projekt slúži ako ukážka, autor: <a href="https://mawebstudio.netlify.app/" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 600;">Maroš Herman</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // 1. Reveal animácia sekcií pri scrolle
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('active');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => io.observe(el));
+
+    // 2. Logika obsluhy mobilného navigovania (Hamburger)
+    document.addEventListener("DOMContentLoaded", function() {
+      const menuToggle = document.querySelector('.mobile-nav-toggle');
+      const navMenu = document.querySelector('.nav-menu');
+
+      if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', function() {
+          menuToggle.classList.toggle('active');
+          navMenu.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+          link.addEventListener('click', () => {
+            menuToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+          });
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

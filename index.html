@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroExample — Moderná organická produkcia</title>
+  <link rel="icon" type="image/x-icon" href="obrazky/favicon.png">
+  <style>
+    /* Reset a globálne premenné */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #1e3f20;
+      --primary-light: #2c5e3b;
+      --accent: #d4af37;
+      --bg: #8F8472;
+      --surface: #769771;
+      --text: #2b2b2a;
+      --text-muted: #171510;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      line-height: 1.6; 
+      color: var(--text); 
+      background-color: var(--bg); 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Animácie pre scroll (Intersection Observer) */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* Hlavička a navigácia */
+    header { background-color: #E0EACD; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eae8e2; }
+    .nav-container { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+    .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+    .logo span { color: var(--accent); }
+    .nav-menu { display: flex; gap: 35px; }
+    .nav-menu a { font-weight: 600; font-size: 0.95rem; color: var(--text-muted); transition: color 0.3s; position: relative; padding: 5px 0; }
+    .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+    .nav-menu a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s; }
+    .nav-menu a:hover::after, .nav-menu a.active::after { width: 100%; }
+
+    /* ŠTÝLY PRE MOBILNÉ MENU (Hamburger tlačidlo) */
+    .mobile-nav-toggle { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 6px; z-index: 1000; padding: 5px; }    
+    .mobile-nav-toggle span { display: block; width: 25px; height: 3px; background-color: var(--primary); border-radius: 2px; transition: all 0.3s ease; }
+
+    /* Transformácia prúžkov na krížik X pri otvorení */
+    .mobile-nav-toggle.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+    .mobile-nav-toggle.active span:nth-child(2) { opacity: 0; }
+    .mobile-nav-toggle.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+    
+    /* Hero Sekcia */
+	.hero { background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('obrazky/hero-bg.webp') center/cover; height: 75vh; display: flex; align-items: center; color: #fff; }
+    .hero-content { max-width: 700px; }
+    .hero-content h1 { font-size: 3.5rem; margin-bottom: 20px; font-weight: 700; line-height: 1.1; }
+    .hero-content p { font-size: 1.25rem; margin-bottom: 35px; color: #f0ede6; font-weight: 300; }
+    .btn { display: inline-block; background-color: var(--primary-light); color: #fff; padding: 14px 35px; border-radius: 4px; font-weight: 600; transition: all 0.3s; border: 1px solid transparent; }
+    .btn:hover { background-color: var(--primary); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(30,63,32,0.3); }
+
+    /* Sekcia Rýchlych Výhod */
+    .features-bar { background: #fff; padding: 40px 0; border-bottom: 1px solid #eae8e2; }
+    .features-bar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; }
+    .fb-item { display: flex; align-items: center; gap: 15px; }
+    .fb-icon { font-size: 2rem; color: var(--accent); }
+    .fb-text h4 { font-size: 1.05rem; color: var(--primary); }
+    .fb-text p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Spoločné štýly pre sekcie */
+    .section { padding: 100px 0; }
+    .section-title { text-align: center; margin-bottom: 60px; }
+    .section-title h2 { font-size: 2.4rem; color: var(--primary); margin-bottom: 15px; font-weight: 700; }
+    .section-title p { color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+
+    /* Divízie / Činnosti */
+    .divisions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
+    .division-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: all 0.3s; border: 1px solid #eee; }
+    .division-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.07); }
+    .division-img { height: 240px; background-size: cover; background-position: center; }
+    .division-info { padding: 30px; }
+    .division-info h3 { margin-bottom: 12px; font-size: 1.4rem; color: var(--primary); }
+    .division-info p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.95rem; }
+    .more-link { color: var(--primary-light); font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: gap 0.3s; }
+    .more-link:hover { gap: 10px; color: var(--accent); }
+
+    /* Číselné Štatistiky */
+    .stats-section { background: linear-gradient(rgba(30,63,32,0.92), rgba(30,63,32,0.92)), url('obrazky/stats-bg.webp') center/cover; color: #fff; text-align: center; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
+    .stat-item h3 { font-size: 3.5rem; color: var(--accent); margin-bottom: 10px; font-weight: 700; }
+    .stat-item p { font-size: 1rem; color: #dbdfd2; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Referencie / Social Proof */
+    .testimonials { background-color: var(--surface); }
+    .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .testi-card { background: #58800C; padding: 40px; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.01); position: relative; }
+    .testi-quote { font-size: 3rem; color: #F8F52E; position: absolute; top: 15px; left: 20px; line-height: 1; font-family: Georgia, serif; }
+    .testi-text { position: relative; z-index: 1; font-style: italic; color: #2b2b2a; margin-bottom: 25px; }
+    .testi-author h4 { font-size: 1.1rem; color: var(--primary); }
+    .testi-author p { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+
+    /* Pás s logami partnerov / certifikátov */
+    .partners-bar { background: #fff; padding: 50px 0; border-top: 1px solid #eae8e2; text-align: center; }
+    .partners-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: #140A0A; margin-bottom: 30px; }
+    .partners-logos { display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 40px; opacity: 0.5; filter: grayscale(100%); }
+    .partners-logos span { font-size: 1.5rem; font-weight: 700; color: #230A0A; }
+
+    /* Pätička */
+    footer { background-color: #141a16; color: #a3b096; padding: 80px 0 20px; font-size: 0.9rem; border-top: 3px solid var(--accent); }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-bottom: 60px; }
+    .footer-col h4 { color: #fff; margin-bottom: 25px; font-size: 1.1rem; position: relative; padding-bottom: 10px; }
+    .footer-col h4::after { content: ''; position: absolute; bottom: 0; left: 0; width: 35px; height: 2px; background: var(--accent); }
+    .footer-col p { margin-bottom: 15px; }
+    .footer-col ul li { margin-bottom: 12px; }
+    .footer-col ul li a:hover { color: #fff; text-decoration: underline; }
+    .footer-bottom { text-align: center; border-top: 1px solid #232d26; padding-top: 25px; color: #5c6954; }
+
+    /* RESPONDING NA MOBILY */
+    @media (max-width: 768px) {
+      .mobile-nav-toggle { 
+        display: flex; /* Zobraziť tlačidlo na mobiloch */
+      }
+
+      /* Klasické menu - vysúvacia roleta */
+      .nav-menu {
+        display: flex; 
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: #E0EACD;
+        flex-direction: column;
+        gap: 0 !important;
+        width: 100%;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-in-out;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        border-bottom: 1px solid #eae8e2;
+      }
+
+      .nav-menu.active {
+        max-height: 350px; /* Rozbalenie pri kliknutí */
+      }
+
+      .nav-menu a {
+        width: 100%;
+        text-align: center;
+        padding: 15px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .nav-menu a::after {
+        display: none;
+      }
+
+      .hero-content h1 { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav-container">
+      <a href="index.html" class="logo">Agro<span>Example</span></a>
+      
+      <button class="mobile-nav-toggle" aria-label="Otvoriť menu">
+          <span></span>
+          <span></span>
+          <span></span>
+      </button>
+      
+      <nav class="nav-menu">
+        <a href="index.html" class="active">Úvod</a>
+        <a href="o-nas.html">O nás</a>
+        <a href="sluzby.html">Naša činnosť</a>
+        <a href="predaj.html">Predaj z dvora</a>
+        <a href="kontakt.html">Kontakt</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Poctivá produkcia z nášho regiónu</h1>
+      <p>Sme rodinná ekologická farma. Spájame hlbokú úctu k prírodným tradíciám s najmodernejšími postupmi udržateľného hospodárstva.</p>
+      <a href="sluzby.html" class="btn">Spoznajte našu prácu</a>
+    </div>
+  </section>
+
+  <div class="features-bar">
+    <div class="container features-bar-grid">
+      <div class="fb-item">
+        <div class="fb-icon">🌱</div>
+        <div class="fb-text">
+          <h4>100% Organické</h4>
+          <p>Bez zbytočnej chémie a GMO.</p>
+        </div>
+      </div>
+      <div class="fb-item">
+        <div class="fb-icon">🚜</div>
+        <div class="fb-text">
+          <h4>Vlastná produkcia</h4>
+          <p>Od semienka po hotový produkt.</p>
+        </div>
+      </div>
+      <div class="fb-item">
+        <div class="fb-icon">📦</div>
+        <div class="fb-text">
+          <h4>Čerstvosť z dvora</h4>
+          <p>Priamy predaj bez sprostredkovateľov.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section reveal">
+    <div class="container">
+      <div class="section-title">
+        <h2>Čomu sa venujeme</h2>
+        <p>Prečítajte si viac o kľúčových pilieroch našej dennej práce na statku</p>
+      </div>
+      
+      <div class="divisions-grid">
+        <div class="division-card">
+          <div class="division-img" style="background-image: url('obrazky/division-preview.webp');"></div>
+          <div class="division-info">
+            <h3>Rastlinná micro výroba</h3>
+            <p>Pestujeme tradičné plodiny s maximálnym ohľadom na mikrobióm pôdy. Využívame moderné rotačné hospodárenie.</p>
+            <a href="sluzby.html" class="more-link">Viac o výrobe &rarr;</a>
+          </div>
+        </div>
+
+        <div class="division-card">
+          <div class="division-img" style="background-image: url('obrazky/division-preview-2.webp');"></div>
+          <div class="division-info">
+            <h3>Živočíšna výroba</h3>
+            <p>Zabezpečujeme voľnovýbehové štandardy (animal welfare) pre náš dobytok. Spokojné zvieratá znamenajú najvyššiu kvalitu.</p>
+            <a href="sluzby.html" class="more-link">Viac o chove &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section stats-section">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <h3 class="stat-num">450+</h3>
+        <p>Hektárov čistej pôdy</p>
+      </div>
+      <div class="stat-item">
+        <h3 class="stat-num">100%</h3>
+        <p>BIO garancia</p>
+      </div>
+      <div class="stat-item">
+        <h3 class="stat-num">25</h3>
+        <p>Rokov tradície</p>
+      </div>
+      <div class="stat-item">
+        <h3 class="stat-num">1500+</h3>
+        <p>Spokojných zákazníkov</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section testimonials reveal">
+    <div class="container">
+      <div class="section-title">
+        <h2>Čo o nás hovoria</h2>
+        <p>Spätná väzba od našich odberateľov a partnerov</p>
+      </div>
+
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-quote">“</div>
+          <p class="testi-text">Ich mliečne výrobky a čerstvé syry kompletne zmenili menu v našej reštaurácii. Hostia okamžite spoznali rozdiel v poctivej chuti.</p>
+          <div class="testi-author">
+            <h4>Michal Kováč</h4>
+            <p>Šéfkuchár, Reštaurácia GURMÁN</p>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-quote">“</div>
+          <p class="testi-text">Pravidelne nakupujeme priamo z dvora AgroExample. Pre naše deti chceme len potraviny bez zbytočnej chémie, a tu máme 100% istotu.</p>
+          <div class="testi-author">
+            <h4>Zuzana Malá</h4>
+            <p>Lokálny zákazník, Bošáca</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="partners-bar">
+    <div class="container">
+      <div class="partners-title">Naše certifikáty a ocenenia</div>
+      <div class="partners-logos">
+        <span>BIO PRODUKT SK</span>
+        <span>SLOVAK GOLD</span>
+        <span>EKO MANUFAKTÚRA</span>
+        <span>REGIONAL QUALITY</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h4>AgroExample</h4>
+        <p>Udržateľné poľnohospodárstvo a výroba prémiových lokálnych produktov s rešpektom k prírode.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Užitočné odkazy</h4>
+        <ul>
+          <li><a href="o-nas.html">O nás a našej histórii</a></li>
+          <li><a href="sluzby.html">Naše výrobné postupy</a></li>
+          <li><a href="predaj.html">Ponuka produktov z dvora</a></li>
+          <li><a href="kontakt.html">Mapa a kontaktné údaje</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <p>Webová ulica 404, 404 00 Webmesto</p>
+        <p>Email: info@agroexample.sk</p>
+        <p>Tel: +421 404 404 404</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>
+        &copy; 2026 AgroExample. Všetky práva vyhradené. | 
+        Projekt slúži ako ukážka, autor: <a href="https://mawebstudio.netlify.app/" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 600;">Maroš Herman</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // 1. Reveal animácia sekcií pri scrolle
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('active');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => io.observe(el));
+
+    // 2. Animácia počítadiel čísel
+    function animateCounter(el, target, duration = 1500) {
+      let start = null;
+      const step = (ts) => {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        const current = Math.floor(progress * target);
+        el.textContent = current + (el.dataset.suffix || '');
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    const statNums = document.querySelectorAll('.stat-num');
+    const statIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const el = e.target;
+          const text = el.textContent;
+          const hasPlus = text.includes('+');
+          const hasPct = text.includes('%');
+          const num = parseInt(text);
+          el.dataset.suffix = hasPlus ? '+' : hasPct ? '%' : '';
+          animateCounter(el, num);
+          statIO.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    statNums.forEach(el => statIO.observe(el));
+
+    // JavaScript pre obsluhu mobilného menu (klikateľnosť)
+    document.addEventListener("DOMContentLoaded", function() {
+      const menuToggle = document.querySelector('.mobile-nav-toggle');
+      const navMenu = document.querySelector('.nav-menu');
+
+      if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', function() {
+          menuToggle.classList.toggle('active');
+          navMenu.classList.toggle('active');
+        });
+
+        // Automatické zavretie menu po kliknutí na akýkoľvek odkaz
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+          link.addEventListener('click', () => {
+            menuToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+          });
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
